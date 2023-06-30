@@ -1,0 +1,152 @@
+
+#1.kütüphaneler 
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+from sklearn.impute import SimpleImputer
+from sklearn import preprocessing
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+le = preprocessing.LabelEncoder()
+ohe = preprocessing.OneHotEncoder()
+from sklearn.linear_model import LinearRegression
+import statsmodels.api as sm
+from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.svm import SVR 
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.ensemble import RandomForestRegressor 
+from sklearn.metrics import r2_score
+
+# kod bölümü 
+
+# 2. Veri Ön İşleme
+
+# 2.1veri yükleme
+veriler = pd.read_csv("maaslar.csv")
+#pd.read_csv("maaslaar.csv")
+
+# Data Frame Dilimleme (slice)
+x = veriler.iloc[:,1:2]  #Eğitim Düzeyi
+y = veriler.iloc[:,2:]  #Maaşlar
+
+# NuMPy Dizi (Array) Dönüşümü 
+X = x.values
+Y = y.values
+
+# Linear_Regression
+# Doğrusal Model Oluşturma
+"""from sklearn.linear_model import LinearRegression"""
+lin_reg = LinearRegression()
+lin_reg.fit(x,y)
+print("Linear Regression R2 Değeri:")
+print(r2_score(Y,lin_reg.predict(X)))
+print("#"*20)
+# Polynomial_Regresion
+# Doğrusal Olmayan (NonLinear Model) model Oluşturma
+"""from sk.learn.preprocessing import PolynomialFeatures"""
+# 2. Dereceden Polinominal Regression
+poly_reg = PolynomialFeatures(degree = 2)
+x_poly = poly_reg.fit_transform(X)
+
+lin_reg2 = LinearRegression()
+lin_reg2.fit(x_poly,y)
+
+# 4.Dereceden Polinominal Regression
+poly_reg3 = PolynomialFeatures(degree = 4)
+x_poly3 = poly_reg3.fit_transform(X)
+
+lin_reg3 = LinearRegression()
+lin_reg3.fit(x_poly3,y)
+
+# Görselliştirme
+plt.scatter(x,y,color='purple')
+plt.plot(x,lin_reg.predict(x))
+plt.show()
+
+
+plt.scatter(X,Y) 
+plt.plot(X,lin_reg2.predict(poly_reg.fit_transform(X)))
+plt.show()
+
+plt.scatter(X,Y)
+plt.plot(X,lin_reg3.predict(poly_reg3.fit_transform(X)))
+plt.show()
+
+# Tahminler
+
+print(lin_reg.predict([[11]]))    
+print(lin_reg.predict([[6.6]]))
+print("#"*20)
+print(lin_reg2.predict(poly_reg.fit_transform([[11]])))
+print(lin_reg2.predict(poly_reg.fit_transform([[6.6]])))
+print("#"*20)
+print("Polynomial Regression R2 Değeri:")
+print(r2_score(Y,lin_reg3.predict(poly_reg3.fit_transform(X))))
+ #verilerin ölçeklendirilmesi
+"""from sklearn.preprocessing import StandardScaler"""
+sc1= StandardScaler() 
+x_olcekli = sc1.fit_transform(X)
+
+
+sc2= StandardScaler()
+y_olcekli = np.ravel(sc2.fit_transform(Y.reshape(-1,1)))
+#support vector regresion
+"""from sk.learn.svm import SVR""" 
+
+
+svr_reg =  SVR(kernel= 'rbf')   #rbf yapmak zorunda değilsin sci-şearn sitesinde bulabilirsin DENEYEBİLİRSİN
+svr_reg.fit(x_olcekli,y_olcekli)
+
+plt.scatter(x_olcekli,y_olcekli, color = 'red') 
+plt.plot(x_olcekli,svr_reg.predict(x_olcekli),color = 'blue')
+plt.show()
+print(svr_reg.predict([[11]]))
+print(svr_reg.predict([[6.6]]))
+print("#"*20)
+print("Support Vector Regression R2 Değeri:")
+print(r2_score(y_olcekli,svr_reg.predict(x_olcekli)))
+#KARAR_AĞACI(DECİSİON TREE")
+"""from sklearn.tree import DecisionTreeRegressor"""
+
+r_dt = DecisionTreeRegressor(random_state = 0)
+r_dt.fit(X,Y)
+Z = X + 0.5
+K = X - 0.5
+plt.scatter(X,Y,color='orange')
+plt.plot(X,r_dt.predict(X),color = 'blue')
+plt.show()
+
+print(r_dt.predict([[11]]))
+print(r_dt.predict([[6.6]]))
+print("#"*20)
+print("Decision Tree R2 Değeri:")
+print(r2_score(Y,r_dt.predict(X)))
+#Random Forest (Rassal Ağaçlar(Orman))
+
+"""from sklearn.ensemble import RandomForestRegressor"""
+
+rf_reg = RandomForestRegressor(n_estimators=10,random_state = 0)
+"""n_estimators kaç tane karar ağacı çizileceğini gösteriyor"""
+rf_reg.fit(X,Y.ravel())
+
+print(rf_reg.predict([[6.5]]))
+print(rf_reg.predict([[9.5]]))
+print("#"*20)
+
+plt.scatter(X,Y,color='red')
+plt.plot(X,rf_reg.predict(X),color = 'blue')
+#plt.show()
+plt.plot(X,rf_reg.predict(K),color = 'red')
+#plt.show()
+plt.plot(X,rf_reg.predict(Z),color = 'black')
+plt.show
+
+
+
+#tahmin değerlendirme ve metotların karşılaştırılması
+
+"""from sklearn.metrics import r2_score"""
+print("Random Forest R2 Değeri:")
+print(r2_score(Y,rf_reg.predict(X)))
+#y_true = Y
